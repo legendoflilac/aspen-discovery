@@ -24,32 +24,61 @@
 								{if $topCategory->published == 0}</em>{/if}
 							</span>
 						</a>
-						<div id="{$topCategory->getEscapedCategory()}-menu" class="dropdown-menu dropdownMenu" aria-labelledby="{$topCategory->getEscapedCategory()}-menu-trigger">
+						<ul id="{$topCategory->getEscapedCategory()}-menu" class="dropdown-menu dropdownMenu" aria-labelledby="{$topCategory->getEscapedCategory()}-menu-trigger">
 							{foreach from=$menuCategory item=link key=linkName}
 								{* Only render HTML contents in the header menu *}
 								{if empty($link->htmlContents)}
-									<div class="header-menu-option childMenuItem">
+									<li class="header-menu-option childMenuItem">
 										<a href="{$link->url}" {if $link->openInNewTab}target="_blank"{/if} aria-label="{translate text=$linkName isPublicFacing=true inAttribute=true}{if $link->openInNewTab} ({translate text="opens in a new window" isPublicFacing=true inAttribute=true}){/if}" title="{translate text=$linkName isPublicFacing=true inAttribute=true}{if $link->openInNewTab} ({translate text="opens in a new window" isPublicFacing=true inAttribute=true}){/if}">
 											{if $link->published == 0}<em>{/if}
 											{translate text=$linkName isPublicFacing=true}
 											{if $link->published == 0}</em>{/if}
 										</a>
-									</div>
+									</li>
 								{/if}
 							{/foreach}
-						</div>
+						</ul>
 					</div>
 				{literal}
 					<script type="application/javascript">
 						// fixed bootstrap custom menu toggles
 						$('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu a').on('click', function (event) {
-							$(this).parent().toggleClass('open');
+							$('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu a').toggleClass('open');
+                            var open = $('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu').hasClass('open');
+                            if (open) {
+                                $(this).attr("aria-expanded","true");
+                            }
+                            else {
+                                $(this).attr("aria-expanded","false");
+                            };
+						});
+                        $('div.dropdown.menuToggleButton.aboutMenu a').on('keyup', function (event) {
+							//look for enter or spacebar to open the dropdown
+							var enterDropdownKey = event.key === 'Enter' || event.key === ' ';
+							if (enterDropdownKey) {
+								$('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu').toggleClass('open');
+							};
+                            var open = $('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu').hasClass('open');
+                            if (open) {
+                                $(#{/literal}{$topCategory->getEscapedCategory()}-menu{literal}).attr("aria-expanded","true");
+                            }
+                            else {
+                                $(#{/literal}{$topCategory->getEscapedCategory()}-menu{literal}).attr("aria-expanded","false");
+                            };
 						});
 						$(document).on('click', function (e) {
 							var trigger = $('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu');
 							if (trigger !== event.target && !trigger.has(event.target).length) {
 								$('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu').removeClass('open');
-							}
+                                $(#{/literal}{$topCategory->getEscapedCategory()}-menu{literal}).attr("aria-expanded","false");
+							};
+                        //create keyboard method to close menu dropdown
+                        $(document).on('keyup', function (e) {
+                            if (e.key === 'Escape') {
+                                $('div.dropdown.menuToggleButton.{/literal}{$topCategory->getEscapedCategory()}{literal}Menu').removeClass('open');
+                                $(#{/literal}{$topCategory->getEscapedCategory()}-menu{literal}).attr("aria-expanded","false");
+                            };
+                        };
 						});
 					</script>
 				{/literal}
